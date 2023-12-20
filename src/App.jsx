@@ -106,7 +106,7 @@ export default function App () {
   function handleTimerStart () {
 
     if(!intervalSetting) {
-      setIntervalSetting(setInterval(startTimer, 100))
+      setIntervalSetting(setInterval(startTimer, 1000))
     }else {
       clearInterval(intervalSetting)
       setIntervalSetting(null)
