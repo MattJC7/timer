@@ -15,10 +15,20 @@ export default function App () {
     session: 25,
   })
 
+  const timeRef = useRef();
+  timeRef.current = defaultTime;
+
   const [timeRemaining, setTimeRemaining] = useState({
     sessionTime: defaultTime.session * 60,
     breakTime: defaultTime.break * 60
   })
+
+  if(defaultTime.session < 1){
+  setDefaultTime(prevState => ({
+    ...prevState,
+    session: 1
+  }))
+  }
 
   const stateRef = useRef();
   stateRef.current = timeRemaining;
@@ -40,12 +50,11 @@ export default function App () {
   let secondsRemainingBreak = timeRemaining.breakTime % 60
   let secondsRemainingDigitsBreak = secondsRemainingBreak > 9 ? secondsRemainingBreak : "0" + secondsRemainingBreak
 
-  console.log(timeRemaining, currentSession)
 
   function handleSettings (event) {
     const id = event.target.id
 
-    if(defaultTime.break > 1){
+    if(timeRef.current.break > 1){
       if(id == "break-decrement"){
         setDefaultTime(prevState => ({
             ...prevState,
@@ -56,7 +65,7 @@ export default function App () {
           breakTime: prevState.breakTime - 60
         }))
       }}
-      if(defaultTime.session > 1){
+      if(timeRef.current.session > 1){
         if(id == "session-decrement"){
           setDefaultTime(prevState => ({
             ...prevState,
@@ -69,7 +78,7 @@ export default function App () {
       }
     }
 
-    if(defaultTime.break < 60){
+    if(timeRef.current.break < 60){
       if(id == "break-increment"){
         setDefaultTime(prevState => ({
             ...prevState,
@@ -80,7 +89,7 @@ export default function App () {
           breakTime: prevState.breakTime + 60
         }))
       }}
-    if(defaultTime.session < 60){
+    if(timeRef.current.session < 60){
       if(id == "session-increment"){
         setDefaultTime(prevState => ({
           ...prevState,
@@ -97,7 +106,7 @@ export default function App () {
   function handleTimerStart () {
 
     if(!intervalSetting) {
-      setIntervalSetting(setInterval(startTimer, 1000))
+      setIntervalSetting(setInterval(startTimer, 100))
     }else {
       clearInterval(intervalSetting)
       setIntervalSetting(null)
@@ -116,6 +125,7 @@ export default function App () {
 
     }else { 
       setCurrentSession("Break");
+      playSound();
     }
 
     if(sessionRef.current == "Break"){
@@ -126,6 +136,7 @@ export default function App () {
     }
     
     if (stateRef.current.breakTime == 0){
+      playSound();
       setCurrentSession("Session");
       setTimeRemaining(prevState => ({
         ...prevState,
@@ -137,6 +148,8 @@ export default function App () {
 
 
   function handleReset () {
+      document.getElementById("beep").pause();
+      document.getElementById("beep").load();
       setCurrentSession("Session")
       clearInterval(intervalSetting);
       setIntervalSetting(null);
@@ -153,6 +166,9 @@ export default function App () {
       }))
   }
   
+  function playSound () {
+    document.getElementById("beep").play();
+  }
 
   return (
     <div className="clock-wrapper">
@@ -185,7 +201,6 @@ export default function App () {
               </button>
             </div>
           </div>
-
       </div>
 
       <div className="clock-body-wrapper">
